@@ -26,23 +26,24 @@ async function TrackerContent() {
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
       <AutoRefresh />
+
       {/* Header */}
       <header className="border-b border-gray-800 bg-gray-900">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight">2026 March Madness Tracker</h1>
+            <h1 className="text-base font-bold tracking-tight sm:text-xl">2026 March Madness Tracker</h1>
             <p className="text-xs text-gray-400 mt-0.5">Auction Pool · Team Portfolio</p>
           </div>
-          <span className="text-xs text-gray-500">Updated {updated}</span>
+          <span className="text-xs text-gray-500 shrink-0">Updated {updated}</span>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-4xl mx-auto px-4 py-5 space-y-5">
 
         {/* My Summary */}
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">My Position</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             <SummaryCard label="Invested" value={fmt(USER_CONTRIBUTION)} sub={`${(userOwnershipPct * 100).toFixed(2)}% ownership`} />
             <SummaryCard label="Earnings" value={fmt(userEarnings)} sub={`of ${fmt(totalPayout)} total`} />
             <SummaryCard
@@ -62,34 +63,46 @@ async function TrackerContent() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-900 text-xs text-gray-400 uppercase tracking-wider">
-                  <th className="text-left px-4 py-3 font-medium">Team</th>
-                  <th className="text-right px-4 py-3 font-medium">Cost</th>
-                  <th className="text-right px-4 py-3 font-medium">Wins</th>
-                  <th className="text-right px-4 py-3 font-medium">Payout</th>
-                  <th className="text-right px-4 py-3 font-medium">My Share</th>
-                  <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Last Game</th>
+                  <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium">Team</th>
+                  <th className="text-right px-3 py-2.5 sm:px-4 sm:py-3 font-medium hidden sm:table-cell">Cost</th>
+                  <th className="text-right px-3 py-2.5 sm:px-4 sm:py-3 font-medium">Wins</th>
+                  <th className="text-right px-3 py-2.5 sm:px-4 sm:py-3 font-medium hidden sm:table-cell">Payout</th>
+                  <th className="text-right px-3 py-2.5 sm:px-4 sm:py-3 font-medium">My Share</th>
+                  <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium hidden sm:table-cell">Last Game</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800">
                 {teams.map(team => {
                   const myShare = team.payout * userOwnershipPct
                   return (
-                    <tr key={team.name} className={`transition-colors ${team.eliminated ? 'opacity-50' : 'hover:bg-gray-900/50'}`}>
-                      <td className="px-4 py-3">
+                    <tr
+                      key={team.name}
+                      className={`transition-colors ${team.eliminated ? 'opacity-50' : 'hover:bg-gray-900/50'}`}
+                    >
+                      {/* Team name — on mobile shows last game below */}
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                         <div className="flex items-center gap-2">
                           <StatusDot eliminated={team.eliminated} wins={team.wins} />
-                          <span className="font-medium">{team.name}</span>
+                          <div>
+                            <span className="font-medium">{team.name}</span>
+                            {/* Last game shown only on mobile */}
+                            {team.lastGame && (
+                              <p className="text-xs text-gray-500 mt-0.5 sm:hidden">{team.lastGame}</p>
+                            )}
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right text-gray-300">{fmt(team.cost)}</td>
-                      <td className="px-4 py-3 text-right font-mono">{team.wins}</td>
-                      <td className="px-4 py-3 text-right text-green-400 font-medium">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right text-gray-300 hidden sm:table-cell">
+                        {fmt(team.cost)}
+                      </td>
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right font-mono">{team.wins}</td>
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right text-green-400 font-medium hidden sm:table-cell">
                         {team.payout > 0 ? fmt(team.payout) : '—'}
                       </td>
-                      <td className="px-4 py-3 text-right text-blue-400 font-medium">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right text-blue-400 font-medium">
                         {myShare > 0 ? fmt(myShare) : '—'}
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs hidden sm:table-cell">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-gray-400 text-xs hidden sm:table-cell">
                         {team.lastGame ?? (team.eliminated ? '—' : 'Not yet played')}
                       </td>
                     </tr>
@@ -97,12 +110,12 @@ async function TrackerContent() {
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-gray-900 border-t border-gray-700 font-semibold">
-                  <td className="px-4 py-3 text-gray-300">Total</td>
-                  <td className="px-4 py-3 text-right text-gray-300">{fmt(TOTAL_TEAM_SPEND)}</td>
-                  <td className="px-4 py-3 text-right">{teams.reduce((s, t) => s + t.wins, 0)}</td>
-                  <td className="px-4 py-3 text-right text-green-400">{fmt(totalPayout)}</td>
-                  <td className="px-4 py-3 text-right text-blue-400">{fmt(userEarnings)}</td>
+                <tr className="bg-gray-900 border-t border-gray-700 font-semibold text-sm">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-gray-300">Total</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right text-gray-300 hidden sm:table-cell">{fmt(TOTAL_TEAM_SPEND)}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right">{teams.reduce((s, t) => s + t.wins, 0)}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right text-green-400 hidden sm:table-cell">{fmt(totalPayout)}</td>
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right text-blue-400">{fmt(userEarnings)}</td>
                   <td className="hidden sm:table-cell" />
                 </tr>
               </tfoot>
@@ -110,11 +123,17 @@ async function TrackerContent() {
           </div>
         </section>
 
-        {/* Status summary */}
-        <section className="flex items-start justify-between text-xs text-gray-500">
+        {/* Footer */}
+        <section className="flex items-start justify-between text-xs text-gray-500 pb-4">
           <div className="flex gap-4">
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> {aliveTeams.length} alive</span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-gray-600 inline-block" /> {eliminatedTeams.length} eliminated</span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+              {aliveTeams.length} alive
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-gray-600 inline-block" />
+              {eliminatedTeams.length} eliminated
+            </span>
           </div>
           <PayoutTable />
         </section>
@@ -136,18 +155,18 @@ function SummaryCard({
     : 'text-red-400'
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 px-4 py-4">
+    <div className="bg-gray-900 rounded-xl border border-gray-800 px-3 py-3 sm:px-4 sm:py-4">
       <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">{label}</p>
-      <p className={`text-2xl font-bold tabular-nums ${valueColor}`}>{value}</p>
+      <p className={`text-xl sm:text-2xl font-bold tabular-nums ${valueColor}`}>{value}</p>
       {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
     </div>
   )
 }
 
 function StatusDot({ eliminated, wins }: { eliminated: boolean; wins: number }) {
-  if (wins === 6) return <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" title="Champion" />
-  if (eliminated) return <span className="w-2 h-2 rounded-full bg-gray-600 inline-block" title="Eliminated" />
-  return <span className="w-2 h-2 rounded-full bg-green-500 inline-block" title="Still alive" />
+  if (wins === 6) return <span className="w-2 h-2 rounded-full bg-yellow-400 shrink-0 inline-block" title="Champion" />
+  if (eliminated) return <span className="w-2 h-2 rounded-full bg-gray-600 shrink-0 inline-block" title="Eliminated" />
+  return <span className="w-2 h-2 rounded-full bg-green-500 shrink-0 inline-block" title="Still alive" />
 }
 
 export default function Page() {

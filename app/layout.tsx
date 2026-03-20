@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description: "NCAA Tournament Auction Pool Tracker",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
