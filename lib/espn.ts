@@ -1,13 +1,22 @@
 import { cacheLife } from 'next/cache'
 import { TEAMS, PAYOUT_TABLE, TOURNAMENT_DATES, TOTAL_TEAM_SPEND, USER_CONTRIBUTION } from './config'
 
+export type NextGame = {
+  opponent: string
+  time: string        // ISO string — formatted client-side
+  statusName: string  // STATUS_SCHEDULED | STATUS_IN_PROGRESS | STATUS_HALFTIME etc.
+  homeScore?: string
+  awayScore?: string
+}
+
 export type TeamResult = {
   name: string
   cost: number
   wins: number
   payout: number
   eliminated: boolean
-  lastGame?: string  // e.g. "W 92-58 vs Long Island"
+  lastGame?: string
+  nextGame?: NextGame
 }
 
 export type TrackerData = {
@@ -27,7 +36,8 @@ interface ESPNCompetitor {
 }
 
 interface ESPNEvent {
-  status: { type: { completed: boolean } }
+  date: string
+  status: { type: { completed: boolean; name: string } }
   competitions: Array<{ competitors: ESPNCompetitor[] }>
 }
 
@@ -38,13 +48,13 @@ export async function getTrackerData(): Promise<TrackerData> {
   const wins: Record<string, number> = {}
   const eliminated: Record<string, boolean> = {}
   const lastGame: Record<string, string> = {}
+  const nextGame: Record<string, NextGame> = {}
 
   for (const t of TEAMS) {
     wins[t.name] = 0
     eliminated[t.name] = false
   }
 
-  // Fetch all tournament dates in parallel
   const responses = await Promise.all(
     TOURNAMENT_DATES.map(date =>
       fetch(
@@ -57,20 +67,39 @@ export async function getTrackerData(): Promise<TrackerData> {
 
   for (const data of responses) {
     for (const event of (data.events ?? []) as ESPNEvent[]) {
-      if (!event.status.type.completed) continue
-
       const competitors = event.competitions[0]?.competitors ?? []
-      const winner = competitors.find(c => c.winner)
-      const loser = competitors.find(c => !c.winner)
-      if (!winner || !loser) continue
+      const statusName = event.status.type.name
 
-      for (const team of TEAMS) {
-        if (winner.team.displayName === team.espnName) {
-          wins[team.name]++
-          lastGame[team.name] = `W ${winner.score}-${loser.score} vs ${loser.team.displayName}`
-        } else if (loser.team.displayName === team.espnName) {
-          eliminated[team.name] = true
-          lastGame[team.name] = `L ${loser.score}-${winner.score} vs ${winner.team.displayName}`
+      if (event.status.type.completed) {
+        // Tally wins and losses
+        const winner = competitors.find(c => c.winner)
+        const loser = competitors.find(c => !c.winner)
+        if (!winner || !loser) continue
+
+        for (const team of TEAMS) {
+          if (winner.team.displayName === team.espnName) {
+            wins[team.name]++
+            lastGame[team.name] = `W ${winner.score}-${loser.score} vs ${loser.team.displayName}`
+          } else if (loser.team.displayName === team.espnName) {
+            eliminated[team.name] = true
+            lastGame[team.name] = `L ${loser.score}-${winner.score} vs ${winner.team.displayName}`
+          }
+        }
+      } else {
+        // Capture upcoming / live games
+        for (const team of TEAMS) {
+          const ourSide = competitors.find(c => c.team.displayName === team.espnName)
+          if (!ourSide) continue
+          const opponent = competitors.find(c => c.team.displayName !== team.espnName)
+          if (!opponent) continue
+
+          nextGame[team.name] = {
+            opponent: opponent.team.displayName,
+            time: event.date,
+            statusName,
+            homeScore: ourSide.score || undefined,
+            awayScore: opponent.score || undefined,
+          }
         }
       }
     }
@@ -85,6 +114,7 @@ export async function getTrackerData(): Promise<TrackerData> {
       payout: PAYOUT_TABLE[w] ?? 0,
       eliminated: eliminated[t.name],
       lastGame: lastGame[t.name],
+      nextGame: eliminated[t.name] ? undefined : nextGame[t.name],
     }
   }).sort((a, b) => b.cost - a.cost)
 
