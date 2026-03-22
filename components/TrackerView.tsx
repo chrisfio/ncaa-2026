@@ -240,6 +240,10 @@ export default function TrackerView({ data }: { data: TrackerData }) {
                   const teamNet = team.payout - team.cost
                   const myNet = userOwnershipPct * teamNet
                   const isExpanded = expandedTeam === team.name
+                  const isLive = team.nextGame && (
+                    team.nextGame.statusName === 'STATUS_IN_PROGRESS' ||
+                    team.nextGame.statusName === 'STATUS_HALFTIME'
+                  )
 
                   return (
                     <Fragment key={team.name}>
@@ -247,13 +251,20 @@ export default function TrackerView({ data }: { data: TrackerData }) {
                       <tr
                         onClick={() => setExpandedTeam(isExpanded ? null : team.name)}
                         className={`transition-colors cursor-pointer sm:cursor-default ${
-                          team.eliminated ? 'opacity-50' : 'hover:bg-gray-900/50'
-                        } ${isExpanded ? 'bg-gray-900/50' : ''}`}
+                          team.eliminated ? 'opacity-50' : ''
+                        } ${isLive ? 'bg-red-950/40 hover:bg-red-950/60' : isExpanded ? 'bg-gray-900/50' : 'hover:bg-gray-900/50'}`}
                       >
                         <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                           <div className="flex items-center gap-2">
                             <StatusDot eliminated={team.eliminated} wins={team.wins} />
                             <span className="font-medium">{team.name}</span>
+                            {/* LIVE pill — desktop only */}
+                            {isLive && (
+                              <span className="hidden sm:inline-flex items-center gap-1 bg-red-500/20 text-red-400 text-xs font-semibold px-2 py-0.5 rounded-full border border-red-500/30">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse inline-block" />
+                                LIVE
+                              </span>
+                            )}
                             {/* Expand chevron — mobile only */}
                             <svg
                               className={`w-3.5 h-3.5 text-gray-500 ml-auto transition-transform sm:hidden ${isExpanded ? 'rotate-180' : ''}`}
