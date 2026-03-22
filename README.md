@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 2026 March Madness Tracker
 
-## Getting Started
+A live auction pool tracker for the 2026 NCAA Tournament. Tracks team performance, payouts, and personal share of winnings — auto-updated from ESPN's API.
 
-First, run the development server:
+## How it works
+
+In this auction pool, a group of participants pool money to bid on all 68 NCAA tournament teams. Each team win earns a payout from the total pot. This tracker monitors our team's 7 owned teams and calculates:
+
+- **Team Total view** — overall spend, payout earned, net, and ROI across all 7 teams
+- **My Share view** — enter any contribution amount to see your prorated earnings, net, and ROI
+- **Live scores** — auto-refreshes every 60 seconds from ESPN, with clock, score, and win/loss coloring for in-progress games
+- **Next matchup** — shows opponent and tip-off time for upcoming games
+
+## Teams
+
+| Team | Auction Cost |
+|------|-------------|
+| Arizona | $26,500 |
+| Illinois | $8,300 |
+| Gonzaga | $5,500 |
+| UCLA | $2,300 |
+| Ohio State | $1,300 |
+| Texas | $1,100 |
+| Long Island | $225 |
+
+**Total spent:** $45,225 · **Total auction pot:** $219,785
+
+## Payout table
+
+| Round | Wins | Payout |
+|-------|------|--------|
+| Round of 64 | 1 | $1,538 |
+| Round of 32 | 2 | $4,176 |
+| Sweet 16 | 3 | $10,110 |
+| Elite 8 | 4 | $18,242 |
+| Final Four | 5 | $30,330 |
+| Championship | 6 | $47,913 |
+
+## Stack
+
+- [Next.js 16](https://nextjs.org) — App Router, server components, `use cache`
+- [Tailwind CSS](https://tailwindcss.com)
+- [ESPN public API](https://site.api.espn.com) — free, no key required
+- [Vercel](https://vercel.com) — hosting, auto-deploys from GitHub
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000).
