@@ -37,11 +37,17 @@ function NextGameBadge({ next }: { next: NextGame }) {
   const isActive = live || halftime
 
   if (isActive) {
+    const our = Number(next.ourScore ?? 0)
+    const their = Number(next.theirScore ?? 0)
+    const scoreColor = our > their ? 'text-green-400' : our < their ? 'text-red-400' : 'text-gray-300'
+
     return (
       <span className="flex items-center gap-1.5">
         <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse inline-block" />
-        <span className="text-red-400 font-medium">
-          {next.detail ?? (halftime ? 'Halftime' : 'Live')} · {next.homeScore}-{next.awayScore} vs {next.opponent}
+        <span className="text-gray-300 font-medium">
+          {next.detail ?? (halftime ? 'Halftime' : 'Live')} ·{' '}
+          <span className={scoreColor}>{next.ourScore}-{next.theirScore}</span>
+          {' '}vs {next.opponent}
         </span>
       </span>
     )

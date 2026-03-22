@@ -6,8 +6,8 @@ export type NextGame = {
   time: string        // ISO string — formatted client-side
   statusName: string  // STATUS_SCHEDULED | STATUS_IN_PROGRESS | STATUS_HALFTIME etc.
   detail?: string     // e.g. "17:27 - 2nd Half" for live games
-  homeScore?: string
-  awayScore?: string
+  ourScore?: string
+  theirScore?: string
 }
 
 export type TeamResult = {
@@ -99,8 +99,8 @@ export async function getTrackerData(): Promise<TrackerData> {
             time: event.date,
             statusName,
             detail: event.status.type.detail,
-            homeScore: ourSide.score || undefined,
-            awayScore: opponent.score || undefined,
+            ourScore: ourSide.score || undefined,
+            theirScore: opponent.score || undefined,
           }
         }
       }
