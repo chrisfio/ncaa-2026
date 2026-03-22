@@ -260,8 +260,7 @@ export default function TrackerView({ data }: { data: TrackerData }) {
                             <span className="font-medium">{team.name}</span>
                             {/* LIVE pill — desktop only */}
                             {isLive && (
-                              <span className="hidden sm:inline-flex items-center gap-1 bg-red-500/20 text-red-400 text-xs font-semibold px-2 py-0.5 rounded-full border border-red-500/30">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse inline-block" />
+                              <span className="hidden sm:inline-flex items-center bg-red-500/20 text-red-400 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border border-red-500/30">
                                 LIVE
                               </span>
                             )}
