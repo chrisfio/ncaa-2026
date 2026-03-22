@@ -41,7 +41,7 @@ function NextGameBadge({ next }: { next: NextGame }) {
       <span className="flex items-center gap-1.5">
         <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse inline-block" />
         <span className="text-red-400 font-medium">
-          {halftime ? 'Halftime' : 'Live'} · {next.homeScore}-{next.awayScore} vs {next.opponent}
+          {next.detail ?? (halftime ? 'Halftime' : 'Live')} · {next.homeScore}-{next.awayScore} vs {next.opponent}
         </span>
       </span>
     )

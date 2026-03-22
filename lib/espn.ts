@@ -5,6 +5,7 @@ export type NextGame = {
   opponent: string
   time: string        // ISO string — formatted client-side
   statusName: string  // STATUS_SCHEDULED | STATUS_IN_PROGRESS | STATUS_HALFTIME etc.
+  detail?: string     // e.g. "17:27 - 2nd Half" for live games
   homeScore?: string
   awayScore?: string
 }
@@ -37,7 +38,7 @@ interface ESPNCompetitor {
 
 interface ESPNEvent {
   date: string
-  status: { type: { completed: boolean; name: string } }
+  status: { type: { completed: boolean; name: string; detail?: string } }
   competitions: Array<{ competitors: ESPNCompetitor[] }>
 }
 
@@ -97,6 +98,7 @@ export async function getTrackerData(): Promise<TrackerData> {
             opponent: opponent.team.displayName,
             time: event.date,
             statusName,
+            detail: event.status.type.detail,
             homeScore: ourSide.score || undefined,
             awayScore: opponent.score || undefined,
           }
