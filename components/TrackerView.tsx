@@ -97,8 +97,14 @@ function PayoutTableSection() {
 type Mode = 'team' | 'mine'
 
 export default function TrackerView({ data }: { data: TrackerData }) {
-  const [mode, setMode] = useState<Mode>('mine')
-  const { teams, totalPayout, userEarnings, userNet, userRoi, userOwnershipPct } = data
+  const [mode, setMode] = useState<Mode>('team')
+  const [contribution, setContribution] = useState(USER_CONTRIBUTION)
+  const { teams, totalPayout } = data
+
+  const userOwnershipPct = contribution / TOTAL_TEAM_SPEND
+  const userEarnings = totalPayout * userOwnershipPct
+  const userNet = userEarnings - contribution
+  const userRoi = contribution > 0 ? (userNet / contribution) * 100 : 0
 
   const totalTeamNet = totalPayout - TOTAL_TEAM_SPEND
   const totalTeamRoi = (totalTeamNet / TOTAL_TEAM_SPEND) * 100
@@ -146,10 +152,25 @@ export default function TrackerView({ data }: { data: TrackerData }) {
 
         {/* Summary Cards */}
         <section>
+          {mode === 'mine' && (
+            <div className="flex items-center gap-2 mb-3">
+              <label className="text-xs text-gray-400 shrink-0">My contribution</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={contribution}
+                  onChange={e => setContribution(Math.max(0, Number(e.target.value)))}
+                  className="bg-gray-900 border border-gray-700 rounded-lg pl-7 pr-3 py-1.5 text-sm text-white w-32 focus:outline-none focus:border-blue-500 tabular-nums"
+                />
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             {mode === 'mine' ? (
               <>
-                <SummaryCard label="Invested" value={fmt(USER_CONTRIBUTION)} sub={`${(userOwnershipPct * 100).toFixed(2)}% ownership`} />
+                <SummaryCard label="Invested" value={fmt(contribution)} sub={`${(userOwnershipPct * 100).toFixed(2)}% ownership`} />
                 <SummaryCard label="Earned" value={fmt(userEarnings)} sub={`of ${fmt(totalPayout)} total`} />
                 <SummaryCard label="Net" value={fmt(userNet)} sub={fmtPct(userRoi)} positive={userNet >= 0} />
                 <SummaryCard label="ROI" value={fmtPct(userRoi)} positive={userRoi >= 0} />
