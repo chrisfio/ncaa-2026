@@ -231,6 +231,7 @@ export default function TrackerView({ data }: { data: TrackerData }) {
                   <th className="text-right px-3 py-2.5 sm:px-4 sm:py-3 font-medium">Wins</th>
                   <th className="text-right px-3 py-2.5 sm:px-4 sm:py-3 font-medium hidden sm:table-cell">Payout</th>
                   <th className="text-right px-3 py-2.5 sm:px-4 sm:py-3 font-medium">Net</th>
+                  <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium hidden sm:table-cell">Last Game</th>
                   <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3 font-medium hidden sm:table-cell">Next Game</th>
                 </tr>
               </thead>
@@ -271,6 +272,9 @@ export default function TrackerView({ data }: { data: TrackerData }) {
                         </td>
                         <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right">
                           <NetBadge value={mode === 'mine' ? myNet : teamNet} />
+                        </td>
+                        <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-xs text-gray-400 hidden sm:table-cell">
+                          {team.lastGame ?? (team.eliminated ? '—' : 'Not yet played')}
                         </td>
                         <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-xs hidden sm:table-cell">
                           {team.nextGame
@@ -334,6 +338,7 @@ export default function TrackerView({ data }: { data: TrackerData }) {
                   <td className="px-3 py-2.5 sm:px-4 sm:py-3 text-right">
                     <NetBadge value={mode === 'mine' ? userNet : totalTeamNet} />
                   </td>
+                  <td className="hidden sm:table-cell" />
                   <td className="hidden sm:table-cell" />
                 </tr>
               </tfoot>
