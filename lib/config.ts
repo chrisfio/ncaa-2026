@@ -28,10 +28,10 @@ export const TOURNAMENT_DATES = [
   '20260320', // First Round Day 2
   '20260321', // Second Round Day 1
   '20260322', // Second Round Day 2
-  '20260327', // Sweet 16 Day 1
-  '20260328', // Sweet 16 Day 2
-  '20260329', // Elite 8 Day 1
-  '20260330', // Elite 8 Day 2
+  '20260326', // Sweet 16 Day 1
+  '20260327', // Sweet 16 Day 2
+  '20260328', // Elite 8 Day 1
+  '20260329', // Elite 8 Day 2
   '20260404', // Final Four
   '20260406', // Championship
 ]
