@@ -106,19 +106,25 @@ function PayoutTableSection() {
               <tr className="bg-gray-900 text-xs text-gray-400 uppercase tracking-wider">
                 <th className="text-left px-4 py-2.5 font-medium">Round</th>
                 <th className="text-right px-4 py-2.5 font-medium">Wins</th>
-                <th className="text-right px-4 py-2.5 font-medium">Payout</th>
+                <th className="text-right px-4 py-2.5 font-medium">Total</th>
+                <th className="text-right px-4 py-2.5 font-medium">Per Win</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
               {Object.entries(PAYOUT_TABLE)
                 .filter(([w]) => Number(w) > 0)
-                .map(([wins, payout]) => (
-                  <tr key={wins} className="bg-gray-950">
-                    <td className="px-4 py-2 text-gray-300">{ROUND_LABELS[Number(wins)]}</td>
-                    <td className="px-4 py-2 text-right tabular-nums">{wins}</td>
-                    <td className="px-4 py-2 text-right tabular-nums text-green-400">{fmt(payout)}</td>
-                  </tr>
-                ))}
+                .map(([wins, payout]) => {
+                  const prev = PAYOUT_TABLE[Number(wins) - 1] ?? 0
+                  const incremental = payout - prev
+                  return (
+                    <tr key={wins} className="bg-gray-950">
+                      <td className="px-4 py-2 text-gray-300">{ROUND_LABELS[Number(wins)]}</td>
+                      <td className="px-4 py-2 text-right tabular-nums">{wins}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-green-400">{fmt(payout)}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-blue-400">+{fmt(incremental)}</td>
+                    </tr>
+                  )
+                })}
             </tbody>
           </table>
         </div>
