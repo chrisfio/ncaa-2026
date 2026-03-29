@@ -210,7 +210,7 @@ export default function WhatIfBracket({
               : 'Tap to select champion'
             }
             callout={bothOursInChamp
-              ? <span className="text-yellow-400 text-[11px] font-semibold shrink-0">⭐ Guaranteed!</span>
+              ? <span className="text-yellow-400 text-[11px] font-semibold shrink-0">💰 Guaranteed!</span>
               : undefined
             }
           />
