@@ -3,6 +3,7 @@
 import { useState, Fragment } from 'react'
 import { PAYOUT_TABLE, TOTAL_TEAM_SPEND, USER_CONTRIBUTION } from '@/lib/config'
 import type { TrackerData, NextGame } from '@/lib/espn'
+import WhatIfBracket from './WhatIfBracket'
 
 const ROUND_LABELS: Record<number, string> = {
   1: 'Round of 64',
@@ -362,6 +363,14 @@ export default function TrackerView({ data }: { data: TrackerData }) {
             </table>
           </div>
         </section>
+
+        {/* What If Bracket */}
+        <WhatIfBracket
+          data={data}
+          mode={mode}
+          ownershipPct={userOwnershipPct}
+          contribution={contribution}
+        />
 
         {/* Footer */}
         <section className="space-y-4 pb-6">

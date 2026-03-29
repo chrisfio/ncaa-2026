@@ -20,6 +20,18 @@ export type TeamResult = {
   nextGame?: NextGame
 }
 
+export type FinalFourSlot = {
+  teamName: string   // short name for our teams, full ESPN name for others, or 'TBD'
+  isOurs: boolean
+}
+
+export type FinalFourGame = {
+  slot1: FinalFourSlot
+  slot2: FinalFourSlot
+  completed: boolean
+  winnerName?: string
+}
+
 export type TrackerData = {
   teams: TeamResult[]
   totalPayout: number
@@ -28,6 +40,7 @@ export type TrackerData = {
   userRoi: number
   userOwnershipPct: number
   lastUpdated: string
+  finalFour: FinalFourGame[]
 }
 
 interface ESPNCompetitor {
@@ -107,6 +120,35 @@ export async function getTrackerData(): Promise<TrackerData> {
     }
   }
 
+  // Build Final Four bracket from April 4 data
+  const ff4DateIndex = TOURNAMENT_DATES.indexOf('20260404')
+  const ff4Events = (responses[ff4DateIndex]?.events ?? []) as ESPNEvent[]
+  const finalFour: FinalFourGame[] = ff4Events.map(event => {
+    const comps = event.competitions[0]?.competitors ?? []
+    const makeSlot = (c?: ESPNCompetitor): FinalFourSlot => {
+      if (!c || c.team.displayName === 'TBD') return { teamName: 'TBD', isOurs: false }
+      const ourTeam = TEAMS.find(t => t.espnName === c.team.displayName)
+      return {
+        teamName: ourTeam ? ourTeam.name : c.team.displayName,
+        isOurs: !!ourTeam,
+      }
+    }
+    let winnerName: string | undefined
+    if (event.status.type.completed) {
+      const w = comps.find(c => c.winner)
+      if (w) {
+        const ourTeam = TEAMS.find(t => t.espnName === w.team.displayName)
+        winnerName = ourTeam ? ourTeam.name : w.team.displayName
+      }
+    }
+    return {
+      slot1: makeSlot(comps[0]),
+      slot2: makeSlot(comps[1]),
+      completed: event.status.type.completed,
+      winnerName,
+    }
+  })
+
   const teams: TeamResult[] = TEAMS.map(t => {
     const w = wins[t.name]
     return {
@@ -134,5 +176,6 @@ export async function getTrackerData(): Promise<TrackerData> {
     userRoi,
     userOwnershipPct,
     lastUpdated: new Date().toISOString(),
+    finalFour,
   }
 }
