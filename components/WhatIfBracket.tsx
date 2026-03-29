@@ -143,14 +143,17 @@ export default function WhatIfBracket({
   const showChamp = champ1 !== null && (game2 ? champ2 !== null : true)
   const bothOursInChamp = showChamp && champ1?.isOurs && champ2?.isOurs
 
-  // Projected payout (naturally equals current payout when no picks are active)
+  // Projected payout (naturally equals current payout when no picks are active).
+  // When both our teams are in the championship the total is guaranteed regardless
+  // of who wins: one team earns PAYOUT_TABLE[6] and the other PAYOUT_TABLE[5].
   const projectedPayout = data.teams.reduce((sum, t) => {
     let wins = t.wins
     if (eff1 === t.name) wins++
     if (eff2 === t.name) wins++
-    if (champPick === t.name) wins++
+    // Don't count champPick when the outcome is already guaranteed
+    if (!bothOursInChamp && champPick === t.name) wins++
     return sum + (PAYOUT_TABLE[wins] ?? 0)
-  }, 0)
+  }, 0) + (bothOursInChamp ? (PAYOUT_TABLE[6]! - PAYOUT_TABLE[5]!) : 0)
 
   const projTeamNet = projectedPayout - TOTAL_TEAM_SPEND
   const projUserEarnings = projectedPayout * ownershipPct
@@ -202,9 +205,12 @@ export default function WhatIfBracket({
             pick={champPick}
             isCompleted={false}
             onPick={handleChampPick}
-            hint="Tap to select champion"
+            hint={bothOursInChamp
+              ? 'Either way, the money is ours — pick your champion for fun'
+              : 'Tap to select champion'
+            }
             callout={bothOursInChamp
-              ? <span className="text-yellow-400 text-[11px] font-semibold shrink-0">⭐ Both our teams!</span>
+              ? <span className="text-yellow-400 text-[11px] font-semibold shrink-0">⭐ Guaranteed!</span>
               : undefined
             }
           />
@@ -213,7 +219,7 @@ export default function WhatIfBracket({
         {/* Scenario earnings — always visible */}
         <div className="bg-gray-900 rounded-xl border border-gray-800 px-4 py-3">
           <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2.5">
-            {eff1 !== null || eff2 !== null ? 'Projected' : 'Current'}
+            {bothOursInChamp ? 'Guaranteed' : eff1 !== null || eff2 !== null ? 'Projected' : 'Current'}
           </p>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
             {mode === 'team' ? (
