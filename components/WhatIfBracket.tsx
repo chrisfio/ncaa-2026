@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PAYOUT_TABLE } from '@/lib/config'
+import { PAYOUT_TABLE, TOTAL_TEAM_SPEND } from '@/lib/config'
 import type { TrackerData, FinalFourGame, FinalFourSlot } from '@/lib/espn'
 
 type Mode = 'team' | 'mine'
@@ -44,9 +44,8 @@ function BracketCard({
       </div>
       <div className="divide-y divide-gray-800">
         {slots.map((slot, i) => {
-          const isTBD = slot.name === 'TBD'
-          const isPicked = !isTBD && pick === slot.name
-          const canClick = !isTBD && !isCompleted && !!onPick
+          const isPicked = pick === slot.name
+          const canClick = !isCompleted && !!onPick
 
           return (
             <button
@@ -58,17 +57,15 @@ function BracketCard({
                   ? isCompleted
                     ? 'bg-yellow-500/10 text-white'
                     : 'bg-blue-600/20 text-white'
-                  : isTBD
-                  ? 'text-gray-600 cursor-default'
                   : isCompleted
                   ? 'text-gray-500 cursor-default'
                   : 'text-gray-300 hover:bg-gray-800/60 cursor-pointer active:bg-gray-800/80'
               }`}
             >
               <span className={`w-2 h-2 rounded-full shrink-0 flex-none ${
-                isTBD ? 'bg-gray-700' : slot.isOurs ? 'bg-green-500' : 'border border-gray-500'
+                slot.isOurs ? 'bg-green-500' : 'border border-gray-600'
               }`} />
-              <span className={`font-medium truncate ${slot.isOurs && !isTBD ? 'text-white' : ''}`}>
+              <span className={`font-medium truncate ${slot.isOurs ? 'text-white' : ''}`}>
                 {slot.name}
               </span>
               {isPicked && (
@@ -146,7 +143,7 @@ export default function WhatIfBracket({
   const showChamp = champ1 !== null && (game2 ? champ2 !== null : true)
   const bothOursInChamp = showChamp && champ1?.isOurs && champ2?.isOurs
 
-  // Projected payout
+  // Projected payout (naturally equals current payout when no picks are active)
   const projectedPayout = data.teams.reduce((sum, t) => {
     let wins = t.wins
     if (eff1 === t.name) wins++
@@ -155,11 +152,9 @@ export default function WhatIfBracket({
     return sum + (PAYOUT_TABLE[wins] ?? 0)
   }, 0)
 
-  const currentPayout = data.teams.reduce((sum, t) => sum + t.payout, 0)
-  const projGain = projectedPayout - currentPayout
+  const projTeamNet = projectedPayout - TOTAL_TEAM_SPEND
   const projUserEarnings = projectedPayout * ownershipPct
   const projUserNet = projUserEarnings - contribution
-  const hasPick = eff1 !== null || eff2 !== null
 
   const champSlots: EffSlot[] = [
     ...(champ1 ? [champ1] : []),
@@ -215,33 +210,37 @@ export default function WhatIfBracket({
           />
         )}
 
-        {/* Projected earnings — only show when a pick has been made */}
-        {hasPick && (
-          <div className="bg-gray-900 rounded-xl border border-gray-800 px-4 py-3">
-            <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2.5">Projected</p>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-              {mode === 'team' ? (
-                <>
-                  <span className="text-gray-400">Team earnings</span>
-                  <span className="text-right text-green-400 font-medium tabular-nums">{fmt(projectedPayout)}</span>
-                  <span className="text-gray-400">Additional gain</span>
-                  <span className={`text-right font-medium tabular-nums ${projGain >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {projGain >= 0 ? '+' : ''}{fmt(projGain)}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="text-gray-400">My earnings</span>
-                  <span className="text-right text-green-400 font-medium tabular-nums">{fmt(projUserEarnings)}</span>
-                  <span className="text-gray-400">My net</span>
-                  <span className={`text-right font-medium tabular-nums ${projUserNet >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {projUserNet >= 0 ? '+' : ''}{fmt(projUserNet)}
-                  </span>
-                </>
-              )}
-            </div>
+        {/* Scenario earnings — always visible */}
+        <div className="bg-gray-900 rounded-xl border border-gray-800 px-4 py-3">
+          <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2.5">
+            {eff1 !== null || eff2 !== null ? 'Projected' : 'Current'}
+          </p>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+            {mode === 'team' ? (
+              <>
+                <span className="text-gray-400">Invested</span>
+                <span className="text-right text-gray-400 tabular-nums">{fmt(TOTAL_TEAM_SPEND)}</span>
+                <span className="text-gray-400">Earned</span>
+                <span className="text-right text-green-400 font-medium tabular-nums">{fmt(projectedPayout)}</span>
+                <span className="text-gray-400">Team Net</span>
+                <span className={`text-right font-medium tabular-nums ${projTeamNet >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {projTeamNet >= 0 ? '+' : ''}{fmt(projTeamNet)}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-gray-400">Invested</span>
+                <span className="text-right text-gray-400 tabular-nums">{fmt(contribution)}</span>
+                <span className="text-gray-400">Earned</span>
+                <span className="text-right text-green-400 font-medium tabular-nums">{fmt(projUserEarnings)}</span>
+                <span className="text-gray-400">Net</span>
+                <span className={`text-right font-medium tabular-nums ${projUserNet >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {projUserNet >= 0 ? '+' : ''}{fmt(projUserNet)}
+                </span>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </section>
   )

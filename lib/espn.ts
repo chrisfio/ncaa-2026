@@ -123,10 +123,11 @@ export async function getTrackerData(): Promise<TrackerData> {
   // Build Final Four bracket from April 4 data
   const ff4DateIndex = TOURNAMENT_DATES.indexOf('20260404')
   const ff4Events = (responses[ff4DateIndex]?.events ?? []) as ESPNEvent[]
-  const finalFour: FinalFourGame[] = ff4Events.map(event => {
+  const finalFour: FinalFourGame[] = ff4Events.map((event, gameIdx) => {
     const comps = event.competitions[0]?.competitors ?? []
+    const tbdLabels = ['TBD East', 'TBD Midwest']
     const makeSlot = (c?: ESPNCompetitor): FinalFourSlot => {
-      if (!c || c.team.displayName === 'TBD') return { teamName: 'TBD', isOurs: false }
+      if (!c || c.team.displayName === 'TBD') return { teamName: tbdLabels[gameIdx] ?? 'TBD', isOurs: false }
       const ourTeam = TEAMS.find(t => t.espnName === c.team.displayName)
       return {
         teamName: ourTeam ? ourTeam.name : c.team.displayName,
