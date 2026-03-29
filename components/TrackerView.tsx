@@ -166,7 +166,7 @@ export default function TrackerView({ data }: { data: TrackerData }) {
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-base font-bold tracking-tight sm:text-xl">2026 March Madness</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Auction Pool Tracker</p>
+            <p className="text-xs text-gray-400 mt-0.5">Kowalsky Group Tracker</p>
           </div>
           <span className="text-xs text-gray-500 shrink-0">Updated {updated}</span>
         </div>
