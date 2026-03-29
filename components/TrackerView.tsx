@@ -227,6 +227,14 @@ export default function TrackerView({ data }: { data: TrackerData }) {
           </div>
         </section>
 
+        {/* What If Bracket */}
+        <WhatIfBracket
+          data={data}
+          mode={mode}
+          ownershipPct={userOwnershipPct}
+          contribution={contribution}
+        />
+
         {/* Team Table */}
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Teams</h2>
@@ -363,14 +371,6 @@ export default function TrackerView({ data }: { data: TrackerData }) {
             </table>
           </div>
         </section>
-
-        {/* What If Bracket */}
-        <WhatIfBracket
-          data={data}
-          mode={mode}
-          ownershipPct={userOwnershipPct}
-          contribution={contribution}
-        />
 
         {/* Footer */}
         <section className="space-y-4 pb-6">
