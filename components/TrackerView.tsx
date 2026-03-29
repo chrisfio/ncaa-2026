@@ -83,7 +83,7 @@ function SummaryCard({ label, value, sub, positive }: {
   )
 }
 
-function PayoutTableSection({ ownershipPct }: { ownershipPct: number }) {
+function PayoutTableSection({ ownershipPct, mode }: { ownershipPct: number; mode: Mode }) {
   const [open, setOpen] = useState(false)
   return (
     <div>
@@ -108,7 +108,6 @@ function PayoutTableSection({ ownershipPct }: { ownershipPct: number }) {
                 <th className="text-right px-4 py-2.5 font-medium">Wins</th>
                 <th className="text-right px-4 py-2.5 font-medium">Total</th>
                 <th className="text-right px-4 py-2.5 font-medium">Per Win</th>
-                <th className="text-right px-4 py-2.5 font-medium">My Share</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
@@ -117,13 +116,14 @@ function PayoutTableSection({ ownershipPct }: { ownershipPct: number }) {
                 .map(([wins, payout]) => {
                   const prev = PAYOUT_TABLE[Number(wins) - 1] ?? 0
                   const incremental = payout - prev
+                  const displayTotal = mode === 'mine' ? payout * ownershipPct : payout
+                  const displayIncremental = mode === 'mine' ? incremental * ownershipPct : incremental
                   return (
                     <tr key={wins} className="bg-gray-950">
                       <td className="px-4 py-2 text-gray-300">{ROUND_LABELS[Number(wins)]}</td>
                       <td className="px-4 py-2 text-right tabular-nums">{wins}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-green-400">{fmt(payout)}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-blue-400">+{fmt(incremental)}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-purple-400">{fmt(payout * ownershipPct)}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-green-400">{fmt(displayTotal)}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-blue-400">+{fmt(displayIncremental)}</td>
                     </tr>
                   )
                 })}
@@ -375,7 +375,7 @@ export default function TrackerView({ data }: { data: TrackerData }) {
               {eliminatedCount} eliminated
             </span>
           </div>
-          <PayoutTableSection ownershipPct={userOwnershipPct} />
+          <PayoutTableSection ownershipPct={userOwnershipPct} mode={mode} />
         </section>
 
       </main>
